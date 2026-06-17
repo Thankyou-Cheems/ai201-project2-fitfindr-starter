@@ -20,6 +20,7 @@ from utils.data_loader import get_example_wardrobe, get_empty_wardrobe
 
 # ── query handler ─────────────────────────────────────────────────────────────
 
+
 def handle_query(user_query: str, wardrobe_choice: str) -> tuple[str, str, str]:
     """
     Called by Gradio when the user submits a query.
@@ -43,8 +44,39 @@ def handle_query(user_query: str, wardrobe_choice: str) -> tuple[str, str, str]:
            string and return it along with session["outfit_suggestion"] and
            session["fit_card"].
     """
-    # TODO: implement this function
-    return "Agent not yet implemented.", "", ""
+    if not user_query or not user_query.strip():
+        return "Enter what kind of secondhand item you want to find.", "", ""
+
+    wardrobe = (
+        get_empty_wardrobe()
+        if wardrobe_choice == "Empty wardrobe (new user)"
+        else get_example_wardrobe()
+    )
+    session = run_agent(user_query.strip(), wardrobe)
+
+    if session["error"]:
+        return session["error"], "", ""
+
+    item = session["selected_item"]
+    parsed = session["parsed"]
+    listing_text = "\n".join(
+        [
+            f"{item['title']}",
+            f"Price: ${item['price']:.2f}",
+            f"Platform: {item['platform']}",
+            f"Size: {item['size']}",
+            f"Condition: {item['condition']}",
+            f"Colors: {', '.join(item['colors'])}",
+            f"Style tags: {', '.join(item['style_tags'])}",
+            "",
+            "State trace:",
+            f"- parsed={parsed}",
+            f"- selected_item id={item['id']}",
+            f"- steps={', '.join(session['steps'])}",
+        ]
+    )
+
+    return listing_text, session["outfit_suggestion"], session["fit_card"]
 
 
 # ── interface ─────────────────────────────────────────────────────────────────
@@ -54,8 +86,9 @@ EXAMPLE_QUERIES = [
     "90s track jacket in size M",
     "flowy midi skirt under $40",
     "black combat boots size 8",
-    "designer ballgown size XXS under $5",   # deliberate no-results test
+    "designer ballgown size XXS under $5",  # deliberate no-results test
 ]
+
 
 def build_interface():
     with gr.Blocks(title="FitFindr") as demo:

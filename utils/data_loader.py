@@ -6,7 +6,6 @@ the files each time.
 
 import json
 import os
-from typing import Optional
 
 # Resolve the path to the data directory relative to this file
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")

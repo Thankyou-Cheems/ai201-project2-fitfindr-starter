@@ -1,0 +1,25 @@
+[project]
+name = "fitfindr"
+version = "0.1.0"
+description = "AI201 Project 2 FitFindr agent"
+requires-python = ">=3.12"
+dependencies = [
+    "gradio>=6.9.0",
+    "groq==0.15.0",
+    "python-dotenv==1.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0,<9",
+    "ruff>=0.15.17",
+]
+
+[tool.pytest.ini_options]
+addopts = "-s"
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
